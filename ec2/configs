@@ -1,0 +1,28 @@
+AWS_CREDENTIALS_FILE=/home/yadu/src/swift-on-cloud/aws/ravi-credentials.csv
+
+# Set the number of worker nodes required
+AWS_WORKER_COUNT=2
+
+# Update the following only if you want to use a specific keypair
+# A key will be generated in path if none are found
+AWS_KEYPAIR_NAME=swift-test-pair
+AWS_KEYPAIR_FILE=~/.ssh/swift-test-pair.pem
+
+#ec2-user is the default user on Amazon linux
+#AWS_USERNAME=ec2-user
+#ubuntu is the default user on Ubuntu nodes
+AWS_USERNAME=ubuntu
+
+# Do not change following parameter
+AWS_REGION=us-west-2
+SECURITY_GROUP=swift_security_group1
+
+# Ubuntu image
+HEADNODE_IMAGE=ami-e7b8c0d7
+# Headnode instance type, refer to Amazon instance types page for reference
+HEADNODE_MACHINE_TYPE=c3.xlarge
+
+# Clean Ubuntu image
+WORKER_IMAGE=ami-e7b8c0d7
+# Worker instance type
+WORKER_MACHINE_TYPE=c3.xlarge
