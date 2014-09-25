@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# Defaults
+LANDTYPE=urban
+NFILES=1000
+NSELECT=10
+SITE=local
+WEBDIR=$HOME/public_html/geo
+MODISDIR=$PWD/data/modis/2002
+
+# Verify an argument is not null
+verify_not_null()
+{
+   argname=$1; shift
+   if [ _$1 != _ ]; then
+      return 0;
+   else
+      echo $0: value for $argname can not be null
+      exit 1
+   fi
+}
+
+run()
+{
+   echo
+   cp $1 .
+   eval swiftrun -site $SITE $( basename $1 ) -landtype=$LANDTYPE -nfiles=$NFILES \
+                 -nselect=$NSELECT -modisdir=$MODISDIR -webdir=$WEBDIR
+   rm $( basename $1 )
+}
+
+
+# Parse command line arguments
+while [ $# -gt 0 ]
+do
+   case "$1" in
+      -landtype) LANDTYPE=$2; verify_not_null landtype $LANDTYPE; shift ;;
+      -nfiles) NFILES=$2; verify_not_null nfiles $NFILES; shift ;;
+      -nselect) NSELECT=$2; verify_not_null nselect $NSELECT; shift ;;
+      -site) SITE=$2; verify_not_null site $SITE; shift ;;
+      -webdir) WEBDIR=$2; verify_not_null webdir $WEBDIR; shift ;;
+      -modisdir) MODISDIR=$2; verify_not_null modisdir $MODISDIR; shift ;;
+      *) ;;
+   esac
+   shift
+done
+
+# Select site
+echo 
+echo "Available sites"
+prompt="Pick an option: "
+options=("local" "midway" "beagle" "beagle-ssh")
+PS3=$prompt
+select opt in "${options[@]}" "Quit"; do
+   case "$REPLY" in
+      1) SITE="local"; break;;
+      2) SITE="midway"; break;;
+      3) SITE="beagle"; break;;
+      4) SITE="beagle-ssh"; break;;
+      $(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
+      *) echo "Invalid option. Try another one.";continue;;
+   esac
+done
+
+# Select script
+echo
+prompt="Pick an option:"
+options=(
+         "Tutorial 1 - Analyze landuse for a single image" 
+         "Tutorial 2 - Analyze landuse for 317 images"
+         "Tutorial 3 - Create text files summarizing results"
+         "Tutorial 4 - Highlight top areas on a map"
+         "Tutorial 5 - Create colored images"
+)
+
+echo "Select script"
+PS3="$prompt "
+select opt in "${options[@]}" "Quit"; do
+    case "$REPLY" in
+       1 ) run tutorial/modis01.swift; break;;
+       2 ) run tutorial/modis02.swift; break;;
+       3 ) run tutorial/modis03.swift; break;;
+       4 ) run tutorial/modis04.swift; break;;
+       5 ) run tutorial/modis05.swift; break;;
+       $(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
+       *) echo "Invalid option. Try another one.";continue;;
+    esac
+done
+

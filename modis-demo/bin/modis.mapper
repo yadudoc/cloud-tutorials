@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Usage: $0 -location dir -suffix .tif -site gsiftp://gridftp.pads.ci.uchicago.edu/ -n=999
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    -location) location=$2;;
+    -suffix)   suffix=$2;;
+    -site)     site=$2;;
+    -n)        n=$2;;
+    *) echo "$0: bad mapper args" 1>&2
+       exit 1;;
+  esac
+  shift 2
+done
+
+find $location -type f -name 'h??v??'${suffix} -print | sort | head -$n | 
+awk '{printf "[%d] %s\n", NR-1, $1}' 
+

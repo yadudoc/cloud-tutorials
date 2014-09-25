@@ -1,0 +1,15 @@
+wrapperlog.always.transfer=true
+sitedir.keep=true
+execution.retries=0
+status.mode=provider
+use.provider.staging=true
+provider.staging.pin.swiftfiles=false
+
+#site beagle-ssh WALLTIME=00:05:00
+
+#app getlanduse=/lustre/beagle/davidk/modis/bin/getlanduse.sh
+#app analyzelanduse=/lustre/beagle/davidk/modis/bin/analyzelanduse.sh
+#app colormodis=/lustre/beagle/davidk/modis/bin/colormodis.sh
+#app assemble=/lustre/beagle/davidk/modis/bin/assemble.sh
+#app markmap=/lustre/beagle/davidk/modis/bin/markmap.sh
+#app echo=/bin/echo

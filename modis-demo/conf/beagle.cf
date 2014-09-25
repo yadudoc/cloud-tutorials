@@ -1,0 +1,15 @@
+wrapperlog.always.transfer=true
+sitedir.keep=true
+execution.retries=0
+status.mode=provider
+use.provider.staging=false
+provider.staging.pin.swiftfiles=false
+
+#site beagle WALLTIME=00:05:00
+
+#app getlanduse=$PWD/../bin/getlanduse.sh
+#app analyzelanduse=$PWD/../bin/analyzelanduse.sh
+#app colormodis=$PWD/../bin/colormodis.sh
+#app assemble=$PWD/../bin/assemble.sh
+#app markmap=$PWD/../bin/markmap.sh
+#app echo=/bin/echo

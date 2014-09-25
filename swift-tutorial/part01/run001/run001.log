@@ -1,0 +1,233 @@
+2014-08-14 20:11:20,095-0500 INFO  Loader VERSION Swift 0.95 Branch SVN swift-r7924 (swift modified locally) cog-r3951 (cog modified locally)
+2014-08-14 20:11:20,097-0500 INFO  Loader RUN_ID run001
+2014-08-14 20:11:20,123-0500 INFO  Loader ARGUMENTS [-runid, run001, -logfile, /home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/run001.log, -sites.file, /home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/sites.xml, -tc.file, /home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/apps, -config, /home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/cf, p1.swift]
+2014-08-14 20:11:20,123-0500 INFO  Loader MAX_HEAP 954466304
+2014-08-14 20:11:20,123-0500 INFO  Loader GLOBUS_HOSTNAME borgmachine
+2014-08-14 20:11:20,124-0500 INFO  Loader CWD /home/yadu/src/swift-on-cloud/swift-tutorial/part01/.
+2014-08-14 20:11:20,129-0500 DEBUG Loader SWIFT_CONFIGURATION Swift configuration ([/home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/cf]): {pgraph.node.options=color="seagreen", style="filled", clustering.min.time=60, clustering.queue.delay=4, sites.file=/home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/sites.xml, ticker.prefix=Progress: , provenance.log=false, kickstart.enabled=maybe, tc.file=/home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/apps, foreach.max.threads=16384, lazy.errors=false, ticker.date.format=, sitedir.keep=false, throttle.score.job.factor=0.2, kickstart.always.transfer=false, throttle.host.submit=2, replication.limit=3, clustering.enabled=false, pgraph=false, file.gc.enabled=true, replication.min.queue.time=60, wrapper.parameter.mode=args, replication.enabled=false, throttle.transfers=4, wrapperlog.always.transfer=false, throttle.submit=4, pgraph.graph.options=splines="compound", rankdir="TB", caching.algorithm=LRU, logfile=/home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/run001.log, use.wrapper.staging=false, provider.staging.pin.swiftfiles=false, tracing.enabled=true, wrapper.invocation.mode=absolute, mapping.checker=on, execution.retries=2, cdm.broadcast.mode=file, status.mode=files, use.provider.staging=true, throttle.file.operations=8}
+2014-08-14 20:11:20,129-0500 INFO  Loader SITES_FILE /home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/sites.xml
+2014-08-14 20:11:20,137-0500 DEBUG textfiles BEGIN SITES:
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://www.ci.uchicago.edu/swift/SwiftSites">
+
+<pool handle="local">
+<profile namespace="karajan" key="initialScore">10000</profile>
+<execution provider="coaster" jobmanager="local:local"/>
+<profile namespace="globus" key="jobsPerNode">4</profile>
+<filesystem provider="local"/>
+<profile namespace="karajan" key="jobThrottle">0.03</profile>
+<workdirectory>/tmp/yadu/swiftwork</workdirectory>
+</pool>
+
+</config>
+
+
+2014-08-14 20:11:20,137-0500 DEBUG textfiles END SITES:
+2014-08-14 20:11:20,137-0500 INFO  Loader TC_FILE /home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/apps
+2014-08-14 20:11:20,137-0500 DEBUG textfiles BEGIN TC:
+* * * INSTALLED INTEL32::LINUX null
+
+
+2014-08-14 20:11:20,137-0500 DEBUG textfiles END TC:
+2014-08-14 20:11:20,137-0500 DEBUG textfiles BEGIN SWIFTSCRIPT:
+type file;
+
+app (file o) simulation ()
+{
+  simulate stdout=filename(o);
+}
+
+file f <"sim.out">;
+f = simulation();
+
+
+2014-08-14 20:11:20,137-0500 DEBUG textfiles END SWIFTSCRIPT:
+2014-08-14 20:11:20,146-0500 INFO  Loader p1.swift: source file is new. Recompiling.
+2014-08-14 20:11:22,004-0500 INFO  Loader RUN_START
+2014-08-14 20:11:22,028-0500 INFO  SwiftExecutor swift.home = /home/yadu/src/swift-0.95/cog/modules/swift/dist/swift-svn
+2014-08-14 20:11:22,063-0500 INFO  swift Using sites file: /home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/sites.xml
+2014-08-14 20:11:22,125-0500 INFO  swift Using tc.data: /home/yadu/src/swift-on-cloud/swift-tutorial/part01/run001/apps
+2014-08-14 20:11:22,701-0500 INFO  AbstractScheduler Setting resources to: {local=local}
+2014-08-14 20:11:22,818-0500 INFO  TRACE VARIABLE, line 8, thread R, f INITIALIZED <SingleFileMapper; , file = file://localhost/sim.out>
+2014-08-14 20:11:22,819-0500 INFO  TRACE Variable declaration, line 8, thread R, f <SingleFileMapper; , file = file://localhost/sim.out>
+2014-08-14 20:11:22,854-0500 INFO  TRACE APPCALL, line 3, thread R, simulation()
+2014-08-14 20:11:22,854-0500 DEBUG swift PROCEDURE line=3 thread=R name=simulation
+2014-08-14 20:11:22,865-0500 INFO  RuntimeStats$ProgressTicker 
+2014-08-14 20:11:22,865-0500 INFO  RuntimeStats$ProgressTicker HeapMax: 954466304, CrtHeap: 156893184, UsedHeap: 12070104
+2014-08-14 20:11:22,873-0500 DEBUG swift THREAD_ASSOCIATION jobid=simulate-g6334zul thread=R host=local replicationGroup=null
+2014-08-14 20:11:22,887-0500 DEBUG swift JOB_START jobid=simulate-g6334zul tr=simulate arguments=[] tmpdir=p1-run001/jobs/g/simulate-g6334zul host=local
+2014-08-14 20:11:22,888-0500 DEBUG swift stagingMethod_FOObar =proxy
+2014-08-14 20:11:22,920-0500 INFO  GlobalSubmitQueue No global submit throttle set. Using default (1024)
+2014-08-14 20:11:23,075-0500 INFO  LocalService Started local service: 127.0.1.1:59748
+2014-08-14 20:11:23,118-0500 INFO  BootstrapService Socket bound. URL is http://borgmachine:48391
+2014-08-14 20:11:23,216-0500 INFO  Settings Local contacts: [http://10.20.2.4:37778]
+2014-08-14 20:11:23,218-0500 INFO  CoasterService Started local service: http://127.0.1.1:37778
+2014-08-14 20:11:23,218-0500 INFO  CoasterService Reserving channel for registration
+2014-08-14 20:11:23,240-0500 INFO  MetaChannel MetaChannel [context: cpipe, boundTo: null] binding to cpipe://1
+2014-08-14 20:11:23,240-0500 INFO  MetaChannel MetaChannel [context: spipe, boundTo: null] binding to spipe://1
+2014-08-14 20:11:23,240-0500 INFO  CoasterService Sending registration
+2014-08-14 20:11:23,243-0500 INFO  MetaChannel Trying to re-bind current channel
+2014-08-14 20:11:23,243-0500 INFO  RequestHandler Handler(tag: 1, REGISTER) unregistering (send)
+2014-08-14 20:11:23,243-0500 INFO  CoasterService Registration complete
+2014-08-14 20:11:23,244-0500 INFO  CoasterService Started coaster service: http://127.0.1.1:60242
+2014-08-14 20:11:23,245-0500 INFO  RequestHandler Handler(tag: 1, CONFIGSERVICE) unregistering (send)
+2014-08-14 20:11:23,253-0500 INFO  BlockQueueProcessor Starting... id=0814-1108230
+2014-08-14 20:11:23,253-0500 INFO  RequestHandler Handler(tag: 2, SUBMITJOB) unregistering (send)
+2014-08-14 20:11:23,312-0500 INFO  BlockQueueProcessor 
+Settings {
+	slots = 20
+	jobsPerNode = 4
+	workersPerNode = 4
+	nodeGranularity = 1
+	allocationStepSize = 0.1
+	maxNodes = 2097151
+	lowOverallocation = 10.0
+	highOverallocation = 1.0
+	overallocationDecayFactor = 0.001
+	spread = 0.9
+	reserve = 60.000s
+	maxtime = 2147483647
+	remoteMonitorEnabled = false
+	internalHostname = 10.20.2.4
+	hookClass = null
+	workerManager = block
+	workerLoggingLevel = NONE
+	workerLoggingDirectory = DEFAULT
+	ldLibraryPath = null
+	workerCopies = null
+	directory = null
+	useHashBang = null
+	parallelism = 0.01
+	coresPerNode = 1
+	perfTraceWorker = false
+	perfTraceInterval = -1
+	attributes = {}
+	callbackURIs = [http://10.20.2.4:37778]
+}
+
+2014-08-14 20:11:23,312-0500 INFO  BlockQueueProcessor Jobs in holding queue: 1
+2014-08-14 20:11:23,312-0500 INFO  BlockQueueProcessor Time estimate for holding queue (seconds): 1
+2014-08-14 20:11:23,312-0500 INFO  BlockQueueProcessor Allocating blocks for a total walltime of: 1s
+2014-08-14 20:11:23,312-0500 INFO  BlockQueueProcessor 	 Considering: Job(id:0 600.000s)
+2014-08-14 20:11:23,312-0500 INFO  BlockQueueProcessor 	  Max Walltime (seconds):   600
+2014-08-14 20:11:23,312-0500 INFO  BlockQueueProcessor 	  Time estimate (seconds):  3600
+2014-08-14 20:11:23,312-0500 INFO  BlockQueueProcessor 	  Total for this new Block (est. seconds): 0
+2014-08-14 20:11:23,314-0500 INFO  BlockQueueProcessor index: 0, last: 0, holding.size(): 1
+2014-08-14 20:11:23,315-0500 INFO  BlockQueueProcessor Queued: 1 jobs to new Block
+2014-08-14 20:11:23,315-0500 INFO  BlockQueueProcessor index: 0, last: 0, ii: 1, holding.size(): 1
+2014-08-14 20:11:23,315-0500 INFO  Block Starting block: workers=4, walltime=3600.000s
+2014-08-14 20:11:23,316-0500 INFO  RemoteLogHandler BLOCK_REQUESTED id=0814-1108230-000000, cores=4, coresPerWorker=1, walltime=3600
+2014-08-14 20:11:23,317-0500 INFO  RequestHandler Handler(tag: 2, RLOG) unregistering (send)
+2014-08-14 20:11:23,319-0500 INFO  BlockTaskSubmitter Queuing block Block 0814-1108230-000000 (4x3600.000s) for submission
+2014-08-14 20:11:23,319-0500 INFO  BlockQueueProcessor Added 1 jobs to new blocks
+2014-08-14 20:11:23,319-0500 INFO  BlockTaskSubmitter Submitting block Block 0814-1108230-000000 (4x3600.000s)
+2014-08-14 20:11:23,319-0500 INFO  ExecutionTaskHandler provider=local
+2014-08-14 20:11:23,356-0500 INFO  Block Block task status changed: Submitting
+2014-08-14 20:11:23,356-0500 INFO  JobSubmissionTaskHandler Submit: in: / command: /usr/bin/perl /home/yadu/.globus/coasters/cscript9136429650842371841.pl http://10.20.2.4:37778 0814-1108230-000000 NOLOGGING
+2014-08-14 20:11:23,357-0500 INFO  Block Block task status changed: Submitted
+2014-08-14 20:11:23,363-0500 INFO  Block Block task status changed: Active
+2014-08-14 20:11:23,363-0500 INFO  RemoteLogHandler BLOCK_ACTIVE id=0814-1108230-000000
+2014-08-14 20:11:23,363-0500 INFO  RequestHandler Handler(tag: 3, RLOG) unregistering (send)
+2014-08-14 20:11:23,733-0500 INFO  AbstractCoasterChannel Timeout check started for TCPChannel [type: server, contact: unknown]
+2014-08-14 20:11:23,758-0500 INFO  AbstractTCPChannel Channel started: TCPChannel [type: server, contact: 10.20.2.4:46055]
+2014-08-14 20:11:23,759-0500 INFO  LocalTCPService Received registration: blockid = 0814-1108230-000000, url = borgmachine
+2014-08-14 20:11:23,759-0500 INFO  MetaChannel MetaChannel [context: worker-1, boundTo: null] binding to TCPChannel [type: server, contact: 10.20.2.4:46055]
+2014-08-14 20:11:23,760-0500 INFO  RemoteLogHandler WORKER_ACTIVE blockid=0814-1108230-000000
+2014-08-14 20:11:23,761-0500 INFO  RequestHandler Handler(tag: 4, RLOG) unregistering (send)
+2014-08-14 20:11:23,761-0500 DEBUG Cpu worker started: block=0814-1108230-000000 host=borgmachine id=0
+2014-08-14 20:11:23,762-0500 DEBUG Cpu ready for work: block=0814-1108230-000000 id=0
+2014-08-14 20:11:23,762-0500 INFO  Block Started CPU 0:1408065083s
+2014-08-14 20:11:23,762-0500 DEBUG Cpu worker started: block=0814-1108230-000000 host=borgmachine id=1
+2014-08-14 20:11:23,763-0500 DEBUG Cpu ready for work: block=0814-1108230-000000 id=1
+2014-08-14 20:11:23,763-0500 INFO  Block Started CPU 1:1408065083s
+2014-08-14 20:11:23,763-0500 DEBUG Cpu worker started: block=0814-1108230-000000 host=borgmachine id=2
+2014-08-14 20:11:23,763-0500 DEBUG Cpu ready for work: block=0814-1108230-000000 id=2
+2014-08-14 20:11:23,763-0500 DEBUG Cpu requesting work: block=0814-1108230-000000 id=0 Cpus sleeping: 1, qseq: 2, myseq: 2
+2014-08-14 20:11:23,763-0500 INFO  Block Started CPU 2:1408065083s
+2014-08-14 20:11:23,763-0500 DEBUG Cpu worker started: block=0814-1108230-000000 host=borgmachine id=3
+2014-08-14 20:11:23,763-0500 DEBUG Cpu ready for work: block=0814-1108230-000000 id=3
+2014-08-14 20:11:23,763-0500 INFO  Block Started CPU 3:1408065083s
+2014-08-14 20:11:23,763-0500 INFO  Block Started worker 0814-1108230-000000:000000
+2014-08-14 20:11:23,763-0500 INFO  AbstractStreamCoasterChannel Using NIO sender for TCPChannel [type: server, contact: 0814-1108230-000000-000000]
+2014-08-14 20:11:23,763-0500 INFO  Cpu 0814-1108230-000000:0 (quality: 1.0) submitting urn:1408065082083-1408065082086-1408065082087: /bin/bash _swiftwrap.staging -e simulate -out sim.out -err stderr.txt -i -d  -if  -of sim.out -k -cdmfile  -status provider -a
+2014-08-14 20:11:23,764-0500 INFO  RequestHandler Handler(tag: 5, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:23,766-0500 INFO  RequestHandler Handler(tag: 4684, REGISTER) unregistering (send)
+2014-08-14 20:11:23,766-0500 DEBUG Cpu requesting work: block=0814-1108230-000000 id=1 Cpus sleeping: 1, qseq: 2, myseq: 2
+2014-08-14 20:11:23,766-0500 DEBUG Cpu 0814-1108230-000000:1 sleeping
+2014-08-14 20:11:23,766-0500 DEBUG Cpu requesting work: block=0814-1108230-000000 id=2 Cpus sleeping: 2, qseq: 2, myseq: 2
+2014-08-14 20:11:23,766-0500 DEBUG Cpu 0814-1108230-000000:2 sleeping
+2014-08-14 20:11:23,766-0500 DEBUG Cpu requesting work: block=0814-1108230-000000 id=3 Cpus sleeping: 3, qseq: 2, myseq: 2
+2014-08-14 20:11:23,766-0500 DEBUG Cpu 0814-1108230-000000:3 sleeping
+2014-08-14 20:11:23,776-0500 INFO  RequestHandler Handler(tag: 6, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:23,778-0500 DEBUG Cpu Stagein workerid=000000
+2014-08-14 20:11:23,778-0500 INFO  RequestHandler Handler(tag: 4685, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:23,778-0500 INFO  RequestHandler Handler(tag: 7, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:23,781-0500 INFO  GetFileHandler Handler(tag: 4686, GET) request complete; src=proxy://u-c924d8b-147d7381765--7fff-u-c924d8b-147d7381765--8000S//home/yadu/src/swift-0.95/cog/modules/swift/dist/swift-svn/libexec/_swiftwrap.staging
+2014-08-14 20:11:23,795-0500 INFO  GetFileHandler Handler(tag: 4686, GET) reader: PR proxy://u-c924d8b-147d7381765--7fff-u-c924d8b-147d7381765--8000S//home/yadu/src/swift-0.95/cog/modules/swift/dist/swift-svn/libexec/_swiftwrap.staging
+2014-08-14 20:11:23,795-0500 INFO  GetFileHandler Handler(tag: 4686, GET) -> 8
+2014-08-14 20:11:23,795-0500 INFO  GetFileHandler Handler(tag: 8, GET) request complete; src=file://localhost//home/yadu/src/swift-0.95/cog/modules/swift/dist/swift-svn/libexec/_swiftwrap.staging
+2014-08-14 20:11:23,812-0500 INFO  GetFileHandler Handler(tag: 8, GET) reader: LR-Handler(tag: 8, GET)
+2014-08-14 20:11:23,812-0500 INFO  GetFileHandler Handler(tag: 8, GET) sending length: 6078, 353658341
+2014-08-14 20:11:23,812-0500 INFO  GetFileHandler Handler(tag: 4686, GET) sending length: 6078, 1848485938
+2014-08-14 20:11:23,813-0500 INFO  ReadBuffer RB-LR-Handler(tag: 8, GET) will ask for 1 buffers for a size of 6078
+2014-08-14 20:11:23,813-0500 INFO  ReadBuffer RB-LR-Handler(tag: 8, GET) actual allocated buffers 1(0 queued)
+2014-08-14 20:11:23,813-0500 INFO  LocalIOProvider LR-Handler(tag: 8, GET) rbuf: RB-LR-Handler(tag: 8, GET)
+2014-08-14 20:11:23,814-0500 INFO  GetFileHandler Handler(tag: 8, GET) unregistering (last)
+2014-08-14 20:11:23,814-0500 INFO  ReadBuffer RB-LR-Handler(tag: 8, GET) de-allocating 1 buffers
+2014-08-14 20:11:23,814-0500 INFO  GetFileHandler Handler(tag: 4686, GET) unregistering (last)
+2014-08-14 20:11:23,815-0500 DEBUG Cpu Active workerid=0814-1108230-000000:000000
+2014-08-14 20:11:23,815-0500 INFO  RequestHandler Handler(tag: 4687, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:23,815-0500 INFO  RequestHandler Handler(tag: 9, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:23,866-0500 INFO  RuntimeStats$ProgressTicker   Active:1
+2014-08-14 20:11:23,867-0500 INFO  RuntimeStats$ProgressTicker HeapMax: 954466304, CrtHeap: 156893184, UsedHeap: 28260776
+2014-08-14 20:11:43,976-0500 DEBUG Cpu Stageout workerid=000000
+2014-08-14 20:11:43,976-0500 INFO  RequestHandler Handler(tag: 4688, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:43,976-0500 INFO  RequestHandler Handler(tag: 10, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:43,977-0500 INFO  PutFileHandler Handler(tag: 4689, PUT) source: /tmp/yadu/swiftwork/p1-run001/jobs/g/simulate-g6334zul/sim.out
+2014-08-14 20:11:43,977-0500 INFO  PutFileHandler Handler(tag: 4689, PUT) destination: proxy://u-c924d8b-147d7381765--7fff-u-c924d8b-147d7381765--8000S//home/yadu/src/swift-on-cloud/swift-tutorial/part01/./sim.out
+2014-08-14 20:11:43,978-0500 INFO  PutFileCommand Sending Command(tag: 11, PUT) (t) on cpipe://1
+2014-08-14 20:11:43,978-0500 INFO  PutFileCommand Command(tag: 11, PUT) (t) sending data
+2014-08-14 20:11:43,978-0500 INFO  PutFileHandler Handler(tag: 4689, PUT) -> 11
+2014-08-14 20:11:43,979-0500 INFO  PutFileHandler Handler(tag: 11, PUT) source: /tmp/yadu/swiftwork/p1-run001/jobs/g/simulate-g6334zul/sim.out
+2014-08-14 20:11:43,979-0500 INFO  PutFileHandler Handler(tag: 11, PUT) destination: file://localhost//home/yadu/src/swift-on-cloud/swift-tutorial/part01/sim.out
+2014-08-14 20:11:43,980-0500 INFO  PutFileHandler Handler(tag: 11, PUT) Transfer done
+2014-08-14 20:11:43,980-0500 INFO  RequestHandler Handler(tag: 11, PUT) unregistering (send)
+2014-08-14 20:11:43,980-0500 INFO  PutFileHandler Handler(tag: 4689, PUT) Transfer done
+2014-08-14 20:11:43,980-0500 INFO  RequestHandler Handler(tag: 4689, PUT) unregistering (send)
+2014-08-14 20:11:43,980-0500 DEBUG Cpu Completed
+2014-08-14 20:11:43,980-0500 INFO  Cpu 0814-1108230-000000:0 jobTerminated
+2014-08-14 20:11:43,981-0500 DEBUG Cpu ready for work: block=0814-1108230-000000 id=0
+2014-08-14 20:11:43,981-0500 DEBUG Cpu requesting work: block=0814-1108230-000000 id=0 Cpus sleeping: 4, qseq: 2, myseq: 2
+2014-08-14 20:11:43,981-0500 INFO  RequestHandler Handler(tag: 4690, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:43,981-0500 DEBUG Cpu 0814-1108230-000000:0 sleeping
+2014-08-14 20:11:43,981-0500 INFO  LateBindingScheduler jobs queued: 0
+2014-08-14 20:11:43,981-0500 INFO  RequestHandler Handler(tag: 12, JOBSTATUS) unregistering (send)
+2014-08-14 20:11:43,981-0500 DEBUG swift JOB_END jobid=simulate-g6334zul
+2014-08-14 20:11:43,981-0500 INFO  TRACE VARIABLE, line 8, thread R, f INITIALIZED <SingleFileMapper; , file = file://localhost/sim.out>
+2014-08-14 20:11:43,981-0500 INFO  swift END_SUCCESS thread=R tr=simulate
+2014-08-14 20:11:43,982-0500 DEBUG swift PROCEDURE_END line=3 thread=R name=simulation
+2014-08-14 20:11:43,982-0500 INFO  RuntimeStats$ProgressTicker   Finished successfully:1
+2014-08-14 20:11:43,982-0500 INFO  RuntimeStats$ProgressTicker HeapMax: 954466304, CrtHeap: 156893184, UsedHeap: 29129320
+2014-08-14 20:11:44,110-0500 DEBUG swift Starting cleanups
+2014-08-14 20:11:44,110-0500 INFO  swift START cleanups=[]
+2014-08-14 20:11:44,110-0500 DEBUG swift Ending cleanups
+2014-08-14 20:11:44,111-0500 INFO  SwiftFunction Cleaning f:file = java.lang.Object@4611a2cb - Closed
+2014-08-14 20:11:44,112-0500 INFO  Loader Swift finished with no errors
+2014-08-14 20:11:44,113-0500 INFO  ServiceManager Cleaning up...
+2014-08-14 20:11:44,113-0500 INFO  ServiceManager Shutting down service at https://127.0.1.1:60242
+2014-08-14 20:11:44,114-0500 INFO  RequestHandler Handler(tag: 3, SHUTDOWNSERVICE) unregistering (send)
+2014-08-14 20:11:44,216-0500 INFO  RequestHandler Handler(tag: 13, UNREGISTER) unregistering (send)
+2014-08-14 20:11:44,234-0500 INFO  BlockQueueProcessor Shutting down blocks
+2014-08-14 20:11:44,234-0500 INFO  Block Shutting down block Block 0814-1108230-000000 (4x3600.000s)
+2014-08-14 20:11:44,234-0500 INFO  RemoteLogHandler BLOCK_SHUTDOWN id=0814-1108230-000000
+2014-08-14 20:11:44,234-0500 INFO  RequestHandler Handler(tag: 14, RLOG) unregistering (send)
+2014-08-14 20:11:44,234-0500 INFO  Block Adding short shutdown watchdog: count = 4, workers = 4, now = true
+2014-08-14 20:11:44,235-0500 INFO  CoasterService Shutdown sequence completed
+2014-08-14 20:11:44,235-0500 INFO  Node Node [borgmachine] 0 shut down successfully
+2014-08-14 20:11:44,235-0500 INFO  AbstractTCPChannel 0814-1108230-000000-000000: Channel shut down
+2014-08-14 20:11:44,235-0500 INFO  MetaChannel MetaChannel [context: worker-1, boundTo: TCPChannel [type: server, contact: 0814-1108230-000000-000000]] binding to NullChannel
+2014-08-14 20:11:44,235-0500 INFO  AbstractStreamCoasterChannel Using threaded sender for TCPChannel [type: server, contact: 0814-1108230-000000-000000]
+2014-08-14 20:11:44,236-0500 INFO  MetaChannel MetaChannel [context: worker-1, boundTo: TCPChannel [type: server, contact: 0814-1108230-000000-000000]] binding to NullChannel
+2014-08-14 20:11:44,236-0500 INFO  AbstractTCPChannel 0814-1108230-000000-000000: Channel terminated
+2014-08-14 20:11:44,236-0500 INFO  RemoteLogHandler WORKER_SHUTDOWN blockid=0814-1108230-000000
+2014-08-14 20:11:44,236-0500 INFO  RequestHandler Handler(tag: 15, RLOG) unregistering (send)
