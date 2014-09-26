@@ -17,7 +17,7 @@ fi
 if [[ $HOSTNAME == headnode* ]]
 then
     export JAVA=/usr/local/bin/jdk1.7.0_51/bin
-    export SWIFT=/usr/local/bin/swift-0.95/bin
+    export SWIFT=/usr/local/bin/swift-trunk/bin
     export PATH=$JAVA:$SWIFT:$PATH
 fi
 
