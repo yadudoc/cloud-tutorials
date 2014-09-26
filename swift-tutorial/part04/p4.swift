@@ -2,12 +2,12 @@ type file;
 
 app (file out, file log) simulation (int sim_steps, int sim_range, int sim_values, file sim_script)
 {
-  bash "simulate.sh" "--timesteps" sim_steps "--range" sim_range "--nvalues" sim_values stdout=@out stderr=@log;
+  bash @sim_script "--timesteps" sim_steps "--range" sim_range "--nvalues" sim_values stdout=@out stderr=@log;
 }
 
 app (file out, file log) analyze (file s[], file stat_script)
 {
-  bash "stats.sh" filenames(s) stdout=@out stderr=@log;
+  bash @stat_script filenames(s) stdout=@out stderr=@log;
 }
 
 int nsim   = toInt(arg("nsim",   "10"));
