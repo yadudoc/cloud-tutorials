@@ -14,7 +14,7 @@ else
   echo Assuming $TUTDIR/bin:$TUTDIR/app: is already at front of PATH
 fi
 
-if [[ $HOSTNAME == headnode* ]]
+if [ -d /usr/local/bin/swift-trunk ] && [ -d /usr/local/bin/jdk1.7.0_51 ]
 then
     export JAVA=/usr/local/bin/jdk1.7.0_51/bin
     export SWIFT=/usr/local/bin/swift-trunk/bin
