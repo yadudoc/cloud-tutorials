@@ -1,0 +1,1060 @@
+Swift Tutorial
+==============
+
+This tutorial is viewable at:
+http://swift-lang.org/tutorials/localhost/tutorial.html [red]#<fix>#
+
+
+Introduction: Why Parallel Scripting?
+------------------------------------
+
+Swift is a simple scripting language for executing many instances of
+ordinary application programs on distributed parallel resources.
+Swift scripts run many copies of ordinary programs concurrently, using
+statements like this:
+-----
+foreach protein in proteinList {
+  runBLAST(protein);
+}
+-----
+Swift acts like a structured "shell" language. It runs programs
+concurrently as soon as their inputs are available, reducing the need
+for complex parallel programming.  Swift expresses your workflow in a
+portable fashion: The same script runs on multicore computers,
+clusters, clouds, grids, and supercomputers. 
+
+This tutorial contains *two sections*. In the first section you will be able to try a few
+Swift examples on your local machine, to get a sense of the language. Then in the 
+second section you will run similar workflows on remote resources such as Midway, 
+distributed OSG Connect resources, Cray, etc., and learn how to instruct Swift to run 
+jobs in different places. You will also see how more 
+complex workflows can be expressed with Swift scripts.
+
+////
+both locally on those machines and 
+on your own machine by connecting to them remotely.
+////
+
+Swift installation
+------------------
+-----
+$ wget http://swiftlang.org/packages/swift-0.95-RC6.tar.gz  # Download the file
+$ tar xfz swift-0.95-RC6.tar.gz   # Extract the file
+$ export PATH=/path/to/swift-0.95-RC6/bin:$PATH   # Add to PATH
+-----
+
+Tutorial scripts installation
+-----------------------------
+Run the following commands to extract these tutorial scripts. [red]#<fix?>#
+
+-----
+wget https://github.com/yadudoc/swift-on-cloud/archive/master.zip
+unzip master.zip
+mv swift-on-cloud-master swift-on-cloud
+cd swift-on-cloud/swift-cloud-tutorial
+-----
+////
+$ cd $HOME
+$ wget http://swiftlang.org/tutorials/midway/swift-midway-tutorial.tar.gz
+$ tar xvfz swift-midway-tutorial.tar.gz
+$ cd swift-midway-tutorial
+////
+
+Run the tutorial setup script
+-----
+$ source setup.sh   # You must run this with "source" !
+-----
+Doing this will add the sample applications `simulate` and `stats` (explained in the next part) and 
+some other functionalities to your local `$PATH` for you to run the tutorial.
+
+In the tutorial directory you will find six `partNN` folders. Each part contains one Swift example that serves to 
+demonstrate different functions for the workflow tutorial. `part01` to `part03` contain 
+Swift scripts for running jobs locally. `part04` to `part06` contain scripts for running jobs on remote 
+resources that you have access to, with corresponding configurations. Further explanations on these will 
+be in Section Two of this tutorial.
+
+.To check out the tutorial scripts from SVN
+
+If you later want to get the most recent version of this tutorial from
+the Swift Subversion repository, do:
+
+-----
+$ svn co https://svn.ci.uchicago.edu/svn/vdl2/SwiftTutorials/swift-localhost-tutorial  <fix>
+-----
+
+This will create a directory called "swift-localhost-tutorial" which contains all of the files 
+used in this tutorial. [red]#<fix name>#
+
+.Verify your environment
+
+To verify that Swift has successfully loaded, run:
+-----
+$ swift -version # verify that you have Swift 0.95 RC6
+-----
+
+[NOTE]
+=====
+If you re-login or open new ssh sessions, you must re-run `source setup.sh` in each 
+ssh shell/window.
+=====
+
+Simple sample "science applications" for the workflow tutorial
+--------------------------------------------------------------
+
+This tutorial is based on two intentionally trivial example programs,
+`simulation.sh` and `stats.sh`, (implemented as bash shell scripts)
+that serve as easy-to-understand proxies for real science
+applications. These "programs" behave as follows.
+
+simulate.sh
+~~~~~~~~~~~
+
+The simulation.sh script serves as a trivial proxy for any more
+complex scientific simulation application. It generates and prints a
+set of one or more random integers in the range [0-2^62) as controlled
+by its command line arguments, which are:
+
+-----
+$ ./app/simulate.sh --help
+./app/simulate.sh: usage:
+    -b|--bias       offset bias: add this integer to all results [0]
+    -B|--biasfile   file of integer biases to add to results [none]
+    -l|--log        generate a log in stderr if not null [y]
+    -n|--nvalues    print this many values per simulation [1]
+    -r|--range      range (limit) of generated results [100]
+    -s|--seed       use this integer [0..32767] as a seed [none]
+    -S|--seedfile   use this file (containing integer seeds [0..32767]) one per line [none]
+    -t|--timesteps  number of simulated "timesteps" in seconds (determines runtime) [1]
+    -x|--scale      scale the results by this integer [1]
+    -h|-?|?|--help  print this help
+$
+-----
+
+All of thess arguments are optional, with default values indicated above as `[n]`.
+
+////
+.simulation.sh arguments
+[width="80%",cols="^2,10",options="header"]
+
+|=======================
+|Argument|Short|Description
+|1    |runtime: sets run time of simulation.sh in seconds
+|2    |range: limits generated values to the range [0,range-1]
+|3    |biasfile: add the integer contained in this file to each value generated
+|4    |scale: multiplies each generated value by this integer
+|5    |count: number of values to generate in the simulation
+|=======================
+////
+
+When running with no arguments, `simulate.sh` prints 1 number in the range of
+1-100. Otherwise it generates n numbers of the form +(R*scale)+bias+
+where R is the random integer being produced. By default it logs information about its
+execution environment to `stderr`.  Here are some examples of its usage:
+
+-----
+$ simulate.sh 2>log
+       5
+$ head -4 log
+
+Called as: /home/wilde/swift/tut/CIC_2013-08-09/app/simulate.sh:
+Start time: Thu Aug 22 12:40:24 CDT 2013
+Running on node: login01.osgconnect.net
+
+$ simulate.sh -n 4 -r 1000000 2>log
+  239454
+  386702
+   13849
+  873526
+
+$ simulate.sh -n 3 -r 1000000 -x 100 2>log
+ 6643700
+62182300
+ 5230600
+
+$ simulate.sh -n 2 -r 1000 -x 1000 2>log
+  565000
+  636000
+
+$ time simulate.sh -n 2 -r 1000 -x 1000 -t 3 2>log
+  336000
+  320000
+real    0m3.012s
+user    0m0.005s
+sys     0m0.006s
+-----
+
+stats.sh
+~~~~~~~~
+
+The `stats.sh` script serves as a trivial model of an "analysis"
+program. It reads N files each containing M integers and simply prints
+the average of all those numbers to `stdout`. Similarly to `simulate.sh`
+it logs environmental information to the `stderr`. After you redirect the
+outputs of `simulate.sh` to files, you can do:
+
+-----
+$ ls f*
+f1  f2  f3  f4
+
+$ cat f*
+25
+60
+40
+75
+
+$ stats.sh f* 2>log
+50
+-----
+
+
+*Tutorial Section One*
+----------------------
+This tutorial is only for running on localhost. See Section Two for tutorial on running jobs on 
+remote resources.
+
+/////
+Basic of the Swift language with local execution
+------------------------------------------------
+/////
+
+A Summary of Swift in a nutshell
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Swift scripts are text files ending in `.swift` The `swift` command
+runs on any host, and executes these scripts. `swift` is a Java
+application, which you can install almost anywhere.  On Linux, just
+unpack the distribution `tar` file and add its `bin/` directory to
+your `PATH`.
+
+* Swift scripts run ordinary applications, just like shell scripts
+do. Swift makes it easy to run these applications on parallel and
+remote computers (from laptops to supercomputers). If you can `ssh` to
+the system, Swift can likely run applications there.
+
+* The details of where to run applications and how to get files back
+and forth are described in configuration files separate from your
+program. Swift speaks ssh, PBS, Condor, SLURM, LSF, SGE, Cobalt, and
+Globus to run applications, and scp, http, ftp, and GridFTP to move
+data.
+
+* The Swift language has 5 main data types: `boolean`, `int`,
+`string`, `float`, and `file`. Collections of these are dynamic,
+sparse arrays of arbitrary dimension and structures of scalars and/or
+arrays defined by the `type` declaration.
+
+* Swift file variables are "mapped" to external files. Swift sends
+files to and from remote systems for you automatically.
+
+* Swift variables are "single assignment": once you set them you can't
+change them (in a given block of code).  This makes Swift a natural,
+"parallel data flow" language. This programming model keeps your
+workflow scripts simple and easy to write and understand.
+
+* Swift lets you define functions to "wrap" application programs, and
+to cleanly structure more complex scripts. Swift `app` functions take
+files and parameters as inputs and return files as outputs.
+
+* A compact set of built-in functions for string and file
+manipulation, type conversions, high level IO, etc. is provided.
+Swift's equivalent of `printf()` is `tracef()`, with limited and
+slightly different format codes.
+
+* Swift's `foreach{}` statement is the main parallel workhorse of the
+language, and executes all iterations of the loop concurrently. The
+actual number of parallel tasks executed is based on available
+resources and settable "throttles".
+
+* In fact, Swift conceptually executes *all* the statements,
+expressions and function calls in your program in parallel, based on
+data flow. These are similarly throttled based on available resources
+and settings.
+
+* Swift also has `if` and `switch` statements for conditional
+execution. These are seldom needed in simple workflows but they enable
+very dynamic workflow patterns to be specified.
+
+We'll see many of these points in action in the examples below. Let's
+get started!
+
+Example 1: Run a single application under Swift
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The first Swift script, `p1.swift`, runs `simulate.sh` to generate a
+single random number. It writes the number to a file.
+
+image::part01.png["p1 workflow",align="center"]
+
+.p1.swift
+-----
+sys::[cat ../part01/p1.swift]
+-----
+
+
+To run this script, run the following command:
+-----
+$ cd part01
+$ swift p1.swift
+Swift 0.95 Branch SVN swift-r7903 cog-r3908
+RunID: run001
+Progress: Tue, 03 Jun 2014 15:01:28-0500
+Final status:Tue, 03 Jun 2014 15:01:29-0500  Finished successfully:1
+$ cat sim.out
+      84
+$ swift p1.swift
+$ cat sim.out
+      36
+-----
+
+To cleanup the directory and remove all outputs (including the log
+files and directories that Swift generates), run the `cleanup` script
+which is located in the tutorial `$PATH`:
+
+-----
+$ cleanup
+-----
+//[source,bash]
+//-----
+//$ cleanup
+//-----
+
+[NOTE]
+===== 
+You will find a Swift configuration file `swift.properties` 
+in each `partNN` directory in the tutorial folder. It defines properties 
+that control the parallelism involved in the swift execution. It also defines 
+properties such as the work directory and the scheduler to use. The specifics will 
+be explained in more detail in the second section of the tutorial, and can be 
+ignored for now. 
+=====
+
+Example 2: Running an ensemble of many apps in parallel with a "foreach" loop
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `p2.swift` script introduces the `foreach` parallel iteration
+construct to run many concurrent simulations.
+
+image::part02.png[align="center"]
+
+.p2.swift
+-----
+sys::[cat ../part02/p2.swift]
+-----
+
+The script also shows an example of naming the output files of an ensemble 
+run. In this case, the output files will be named `output/sim_N.out`.
+
+To run the script and view the output:
+-----
+$ cd ../part02
+$ swift p2.swift
+$ ls output
+sim_0.out  sim_1.out  sim_2.out  sim_3.out  sim_4.out  sim_5.out  sim_6.out  sim_7.out  sim_8.out  sim_9.out
+$ more output/*
+::::::::::::::
+output/sim_0.out
+::::::::::::::
+      44
+::::::::::::::
+output/sim_1.out
+::::::::::::::
+      55
+...
+
+::::::::::::::
+output/sim_9.out
+::::::::::::::
+      82
+-----
+
+Example 3: Analyzing results of a parallel ensemble
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After all the parallel simulations in an ensemble run have completed,
+it is typically necessary to gather and analyze their results with some
+kind of post-processing analysis program or script.  `p3.swift`
+introduces such a postprocessing step. In this case, the files created
+by all of the parallel runs of `simulation.sh` will be averaged by by
+the trivial "analysis application" `stats.sh`:
+
+image::part03.png[align="center"]
+
+.p3.swift
+----
+sys::[cat ../part03/p3.swift]
+----
+
+To run:
+----
+$ cd part03
+$ swift p3.swift
+----
+
+Note that in `p3.swift` we expose more of the capabilities of the
+`simulate.sh` application to the `simulation()` app function:
+
+-----
+app (file o) simulation (int sim_steps, int sim_range, int sim_values)
+{
+  simulate "--timesteps" sim_steps "--range" sim_range "--nvalues" sim_values stdout=filename(o);
+}
+-----
+
+`p3.swift` also shows how to fetch application-specific values from
+the `swift` command line in a Swift script using `arg()` which
+accepts a keyword-style argument and its default value:
+
+-----
+int nsim   = toInt(arg("nsim","10"));
+int steps  = toInt(arg("steps","1"));
+int range  = toInt(arg("range","100"));
+int values = toInt(arg("values","5"));
+-----
+
+Now we can specify that more runs should be performed and that each should 
+run for more timesteps, and produce more that one value each, within a specified 
+range, using command line arguments placed after the Swift script name in the 
+form `-parameterName=value`:
+
+-----
+$ swift p3.swift -nsim=3 -steps=10 -values=4 -range=1000000
+Swift 0.95 Branch SVN swift-r7903 cog-r3908
+RunID: run001
+Progress: Tue, 03 Jun 2014 17:06:58-0500
+Progress: Tue, 03 Jun 2014 17:06:59-0500  Submitted:2  Active:1
+Progress: Tue, 03 Jun 2014 17:07:00-0500  Submitted:1  Active:2
+Progress: Tue, 03 Jun 2014 17:07:01-0500  Active:3
+Progress: Tue, 03 Jun 2014 17:07:09-0500  Active:2  Finished successfully:1
+Progress: Tue, 03 Jun 2014 17:07:10-0500  Active:1  Finished successfully:2
+Final status:Tue, 03 Jun 2014 17:07:11-0500  Finished successfully:4
+
+$ ls output/
+average.out  sim_0.out  sim_1.out  sim_2.out
+$ more output/*
+::::::::::::::
+output/average.out
+::::::::::::::
+651368
+::::::::::::::
+output/sim_0.out
+::::::::::::::
+  735700
+  886206
+  997391
+  982970
+::::::::::::::
+output/sim_1.out
+::::::::::::::
+  260071
+  264195
+  869198
+  933537
+::::::::::::::
+output/sim_2.out
+::::::::::::::
+  201806
+  213540
+  527576
+  944233
+-----
+
+Now try running (`-nsim=`) 100 simulations of (`-steps=`) 1 second each:
+
+-----
+$ swift p3.swift -nsim=100 -steps=1
+Swift 0.95 Branch SVN swift-r7903 cog-r3908
+RunID: run002
+Progress: Tue, 03 Jun 2014 17:08:05-0500
+Progress: Tue, 03 Jun 2014 17:08:06-0500  Selecting site:79  Submitted:20  
+Active:1
+Progress: Tue, 03 Jun 2014 17:08:07-0500  Selecting site:78  Submitted:18  
+Active:3  Finished successfully:1
+Progress: Tue, 03 Jun 2014 17:08:08-0500  Selecting site:75  Submitted:17  
+Active:4  Finished successfully:4
+Progress: Tue, 03 Jun 2014 17:08:09-0500  Selecting site:71  Submitted:16  
+Active:5  Finished successfully:8
+Progress: Tue, 03 Jun 2014 17:08:11-0500  Selecting site:66  Submitted:15  
+Active:6  Finished successfully:13
+Progress: Tue, 03 Jun 2014 17:08:12-0500  Selecting site:60  Submitted:14  
+Active:7  Finished successfully:19
+Progress: Tue, 03 Jun 2014 17:08:13-0500  Selecting site:53  Submitted:13  
+Active:8  Finished successfully:26
+Progress: Tue, 03 Jun 2014 17:08:14-0500  Selecting site:45  Submitted:12  
+Active:9  Finished successfully:34
+Progress: Tue, 03 Jun 2014 17:08:15-0500  Selecting site:36  Submitted:11  
+Active:10  Finished successfully:43
+Progress: Tue, 03 Jun 2014 17:08:16-0500  Selecting site:26  Submitted:10  
+Active:11  Finished successfully:53
+Progress: Tue, 03 Jun 2014 17:08:17-0500  Selecting site:15  Active:21  
+Finished successfully:64
+Progress: Tue, 03 Jun 2014 17:08:18-0500  Active:16  Finished successfully:84
+Progress: Tue, 03 Jun 2014 17:08:19-0500  Active:11  Finished successfully:89
+Final status:Tue, 03 Jun 2014 17:08:19-0500  Finished successfully:101
+-----
+
+Now that we've seen how to use Swift to complete simple jobs for you 
+on your local machine, we can now proceed to learning how to run 
+similar workflows on remote machines.
+
+*Tutorial Section Two*
+----------------------
+
+When you have access to other resources that you wish to run jobs on, 
+you can simply state `-site=XX` (where `XX` is the name of the resource) on the command line 
+following the usual command given to run Swift. With the right configuration 
+specifications, Swift will automatically connect you to the target machine and 
+start the jobs there. 
+
+For example, if you are already logged in on a certain machine and you wish to run 
+jobs locally, you can do:
+-----
+$ swift p1.swift -site=local
+-----
+Then Swift will complete the jobs for you on the login node.
+
+You can use `part01-03` to run the same workflows as in Section One on the local 
+node as an exercise. You will learn more examples for running on remote sites using 
+`part04-06` introduced in the following section.
+
+[NOTE]
+=====
+You have to have Swift installed on the headnode to run jobs! See Swift Installation for 
+instructions. However, you do not need to do the same for the remote sites as Swift service will be 
+automatically carried over.
+=====
+
+Example 4: Running a simple app on remote node
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In `p4.swift`, there is a simple `app` which takes a file containing random numbers and `sort` them before returning a sorted output. In the `part04` 
+folder  we have a file, `unsorted.txt`, which contains 100 random integers ranging from 0 to 99 and we wish to run the job on a remote node.
+
+.p4.swift
+-----
+type file;
+
+app (file out) sortdata (file unsorted)
+{
+  sort "-n" "unsorted.txt" stdout=filename(out);
+}
+
+file unsorted <"unsorted.txt">;
+file sorted <"sorted.txt">;
+
+sorted = sortdata(unsorted);
+-----
+
+Since `sort` has most likely already been implemented on the remote node, all we need to do is send the `unsorted.txt` to the node and specify the 
+location where you want to run the job on the command line, using `-site=XX`. After the job completes we will get a 
+sorted file  `sorted.txt` back to the local machine.
+
+For example, to run the job remotely on Midway and to view the output:
+-----
+$ cd ../part04
+$ swift p4.swift -site=midway-remote
+Swift 0.95 RC6 swift-r7900 cog-r3908
+RunID: run001
+Progress: Mon, 14 Jul 2014 16:29:42-0500
+Progress: Mon, 14 Jul 2014 16:29:43-0500  Submitting:1
+Progress: Mon, 14 Jul 2014 16:29:55-0500  Submitted:1
+Final status:Mon, 14 Jul 2014 16:29:56-0500  Finished successfully:1
+$ cat sorted.txt
+0
+1
+2
+3
+...
+...
+99
+-----
+
+Example 5: Running a parallel ensemble on compute nodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`p5.swift` will run our mock "simulation" applications on compute nodes. The script is almost the same 
+as `p3.swift`, but specifies that each `simulation` app invocation should additionally return 
+the log file which the application writes to `stderr`. 
+
+.p5.swift
+-----
+type file;
+
+app (file out, file log) simulation (int sim_steps, int sim_range, int sim_values, file sim_script)
+{
+  bash "simulate.sh" "--timesteps" sim_steps "--range" sim_range "--nvalues" sim_values stdout=filename(out) stderr=filename(log);
+}
+
+app (file out, file log) analyze (file s[], file stat_script)
+{
+  bash "stats.sh" filenames(s) stdout=filename(out) stderr=filename(log);
+}
+
+int nsim   = toInt(arg("nsim",   "10"));
+int steps  = toInt(arg("steps",  "1"));
+int range  = toInt(arg("range",  "100"));
+int values = toInt(arg("values", "5"));
+
+file simulate_script <"simulate.sh">;
+file stats_script <"stats.sh">;
+
+file sims[];
+
+foreach i in [0:nsim-1] {
+  file simout <single_file_mapper; file=strcat("output/sim_",i,".out")>;
+  file simlog <single_file_mapper; file=strcat("output/sim_",i,".log")>;
+  (simout,simlog) = simulation(steps,range,values,simulate_script);
+  sims[i] = simout;
+}
+
+file stats_out<"output/average.out">;
+file stats_log<"output/average.log">;
+(stats_out, stats_log) = analyze(sims, stats_script);
+-----
+
+Note that since `simulate` and `stats` are no longer in the `$PATH` of the remote site, we need to pass both `simulate.sh` and `stats.sh` as 
+arguments to the `app`s to send them there and use `bash` to invoke them to be able to use them.
+
+Now when you run `swift p5.swift` you will see that two types of output files will be placed in 
+the `output/` directory: `sim_N.out` and `sim_N.log`. The log files provide data on the runtime 
+environment of each app invocation. 
+////
+For example:
+-----
+$ cat output/sim_0.log
+Called as: /home/davidkelly999/swift-midway-tutorial/app/simulate: --timesteps 1 --range 100 --nvalues 5
+
+Start time: Mon Dec  2 12:17:06 CST 2013
+Running as user: uid=88848(davidkelly999) gid=88848(davidkelly999) groups=88848(davidkelly999),10008(rcc),10030(pi-gavoth),10031(sp-swift),10036(swift),10058(pi-joshuaelliott),10084(pi-wilde),10118(cron-account),10124(cmts),10138(cmtsworkshop)
+Running on node: midway002
+Node IP address: 10.50.181.2 172.25.181.2
+
+Simulation parameters:
+
+bias=0
+biasfile=none
+initseed=none
+log=yes
+paramfile=none
+range=100
+scale=1
+seedfile=none
+timesteps=1
+output width=8
+
+Environment:
+
+ANTLR_ROOT=/software/antlr-2.7-el6-x86_64
+ANT_HOME=/software/ant-1.8.4-all
+ANT_HOME_modshare=/software/ant-1.8.4-all:3
+...
+-----
+////
+
+In order to run `p5.swift` on compute nodes instead of on the headnode, you can again specify it on the command 
+line. For example, if you are on Midway, instead of running locally, you can run:
+-----
+$ swift p5.swift -site=midway
+-----
+
+The site names can be defined in the Swift's `swift.properties` configuration file. The 
+file allows many parameters to specify how jobs should be run on a given site.
+
+Consider, for example, that Midway has several Slurm partitions. The sandyb partition has 16 
+cores, and the westmere partition has 12 cores. Depending on the application and which partitions 
+are busy, you may want to modify where you run in the `jobQueue` specification:
+-----
+site.midway {
+   jobManager=slurm
+   jobQueue=westmere
+   tasksPerWorker=4
+   initialScore=10000
+   filesystem=local
+   jobproject=pi-wilde    # Put your own project ID here
+   workdir=/scratch/midway/$USER/work
+}
+-----
+By setting the `tasksPerWorker` to the desired number of parallel application 
+invocations it is possible to take advantage of multiple cores in the processor. 
+The `taskThrottle` variable is used to limit number of tasks sent to workers 
+for execution. Both `tasksPerWorker` and `taskThrottle` are set to 2 in the tutorial 
+and could be set to the number of cores available on your machine.
+You should also make sure to change `workdir` to your own directory on the site.
+
+You can also execute jobs remotely from your own machine by setting `jobManager` to the 
+full path of the scheduler.
+
+For example, if you run:
+-----
+$ swift p5.swift -site=midway-remote
+-----
+Swift will `ssh` to the target site and start the jobs there.
+
+`swift.properties` will therefore look like this:
+-----
+site.midway-remote {
+   jobManager=midway.rcc.uchicago.edu:slurm
+   jobQueue=westmere
+   tasksPerWorker=12
+   initialScore=10000
+   filesystem=local
+   jobproject=pi-wilde    # Put your own project ID here
+   workdir=/scratch/midway/$USER/work
+}
+-----
+
+Note that if you have a different `$USER` name on your working site from your 
+local machine, you should change the  `workdir` accordingly to the correct one.
+
+With the right specifications, you can define your own site using similar 
+property settings. Swift will then be able to run anywhere you want.
+
+More explanations on setting the configuration file will be found in the User Guide.
+
+[NOTE]
+=====
+Make sure you have passphraseless accesses to all sites 
+to ensure a smooth workflow. This can be done by identifying yourself with 
+your public key on all remote sites. Here is a tutorial for doing this: 
+http://www.unixwiz.net/techtips/ssh-agent-forwarding.html
+=====
+
+Example 6: Controlling the compute-node pools where applications run
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`p6.swift` is exactly the same as `p5.swift` with one exception: `simulate.sh` and `stats.sh` 
+are executed using `remote_sh` and `local_sh` respectively instead of `bash`.
+
+.p6.swift
+-----
+type file;
+
+app (file out, file log) simulation (int sim_steps, int sim_range, int sim_values, file sim_script)
+{
+  remote_sh "simulate.sh" "--timesteps" sim_steps "--range" sim_range "--nvalues" sim_values stdout=filename(out) stderr=filename(log);
+}
+
+app (file out, file log) analyze (file s[], file stat_script)
+{
+  local_sh "stats.sh" filenames(s) stdout=filename(out) stderr=filename(log);
+}
+
+int nsim   = toInt(arg("nsim",   "10"));
+int steps  = toInt(arg("steps",  "1"));
+int range  = toInt(arg("range",  "100"));
+int values = toInt(arg("values", "5"));
+
+file sims[];
+file simulate_script <"simulate.sh">;
+file stats_script <"stats.sh">;
+
+foreach i in [0:nsim-1] {
+  file simout <single_file_mapper; file=strcat("output/sim_",i,".out")>;
+  file simlog <single_file_mapper; file=strcat("output/sim_",i,".log")>;
+  (simout,simlog) = simulation(steps,range,values,simulate_script);
+  sims[i] = simout;
+}
+
+file stats_out<"output/average.out">;
+file stats_log<"output/average.log">;
+(stats_out, stats_log) = analyze(sims,stats_script);
+-----
+
+This modification can be used to control where you run your applications. In order to do this, 
+you need to define *each* of the `apps` you used inside your application declarations to specify 
+where they come from. They should be put in the `swift.properties` in the following form:
+-----
+app.<site>.<app_name>=<path_to_executable>
+-----
+By setting an "app location" property in the `swift.properties`, you are explicitly setting the 
+sites on which the `app` is allowed to run and the executable to be used on that site. A point 
+to note is that, if there is no `app` defined in the `swift.properties`, Swift will assume that 
+every `app` in the Swift script is free to run on all defined sites. But if any single `app` 
+is defined in the `swift.properties`, Swift expects to see `app` property for every `app` used. 
+For example:
+
+////
+Right now Swift will 
+execute each of the `apps` on every site where it is able to be located in `$PATH`. 
+Therefore, 
+////
+
+.Definition for app `simulation`
+-----
+app.midway.remote_sh=/bin/bash
+-----
+It indicates that the app `remote_sh` should be executed using `/bin/bash` and Swift 
+will look for it on a site named `midway` to run the `simulation` application.
+
+.Definition for app `analyze`
+-----
+app.local.local_sh=/bin/bash
+-----
+Similarly, Swift will look for `/bin/sh` locally to execute the `analyze` application.
+
+////
+For another example, let us take another look at `p1.swift`:
+-----
+type file;
+
+app (file o) simulation ()
+{
+  simulate stdout=filename(o);
+}
+
+file f <"sim.out">;
+f = simulation();
+-----
+
+If you define app `simulate` like this:
+-----
+app.local.simulate=$PWD/simulate.sh
+-----
+It indicates that the app `simulate` is located in the file `simulate.sh` and since 
+the path `simulate.sh` is specified with no directory components, Swift expects that 
+`simulate.sh` executable will be available in your `$PATH`.
+////
+
+.Specifying sites in configuration file
+If you are used to running jobs on a fixed combination of sites and don't want to type 
+out the names every single time, you can also specify them in `swift.properties` 
+by doing `site=XX, XX, ...` For example, instead of running:
+-----
+$ swift p6.swift -site=midway-remote,local
+-----
+You can just say this in `swift.properties`:
+-----
+site=midway-remote,local
+-----
+Then if you have defined *all* your `apps` in the configuration file correctly,
+when you run `swift p5.swift` Swift will execute each of the `apps` on the 
+corresponding site that you specified.
+
+Example 7: Specifying more complex workflow patterns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`p7.swift` expands the workflow pattern of `p6.swift` to add additional
+stages to the workflow. Here, we generate a dynamic seed value that
+will be used by all of the simulations to initialize the random number 
+generator, so that there are some dependencies to the numbers being generated. 
+For each simulation, we also run a pre-processing application to generate a unique "bias
+file" (Remeber the form `(R*scale)+bias`). This pattern is shown below, followed by the Swift script.
+
+image::part06.png[align="center"]
+
+.p7.swift
+----
+type file;
+
+# Main script and data
+file simulate_script <"simulate.sh">;
+file stats_script <"stats.sh">;
+file seedfile <"output/seed.dat">;        # Dynamically generated bias for simulation ensemble
+
+app (file out) genseed (int nseeds, file seed_script)
+{
+  bash "simulate.sh" "-r" 2000000 "-n" nseeds stdout=filename(out);
+}
+
+app (file out) genbias (int bias_range, int nvalues, file bias_script)
+{
+  bash "simulate.sh" "-r" bias_range "-n" nvalues stdout=filename(out);
+}
+
+app (file out, file log) simulation (int timesteps, int sim_range,
+                                     file bias_file, int scale, int sim_count,
+                                     file sim_script, file seed_file)
+{
+  bash "simulate.sh" "-t" timesteps "-r" sim_range "-B" filename(bias_file) "-x" scale
+           "-n" sim_count "-S" filename(seed_file) stdout=filename(out) stderr=filename(log);
+}
+
+app (file out, file log) analyze (file s[], file stat_script)
+{
+  bash "stats.sh" filenames(s) stdout=filename(out) stderr=filename(log);
+}
+
+# Command line arguments
+int  nsim  = toInt(arg("nsim",   "10"));  # number of simulation programs to run
+int  steps = toInt(arg("steps",  "1"));   # number of timesteps (seconds) per simulation
+int  range = toInt(arg("range",  "100")); # range of the generated random numbers
+int  values = toInt(arg("values", "10"));  # number of values generated per simulation
+
+tracef("\n*** Script parameters: nsim=%i range=%i num values=%i\n\n", nsim, range, values);
+seedfile = genseed(1, simulate_script);	# pass the simulate.sh script to the remote site as an argument
+
+file sims[];                      # Array of files to hold each simulation output
+
+foreach i in [0:nsim-1] {
+  file biasfile <single_file_mapper; file=strcat("output/bias_",i,".dat")>;
+  file simout   <single_file_mapper; file=strcat("output/sim_",i,".out")>;
+  file simlog   <single_file_mapper; file=strcat("output/sim_",i,".log")>;
+  biasfile = genbias(1000, 20, simulate_script);
+  (simout,simlog) = simulation(steps, range, biasfile, 1000000, values, simulate_script, seedfile);
+  sims[i] = simout;
+}
+
+file stats_out<"output/average.out">;
+file stats_log<"output/average.log">;
+(stats_out,stats_log) = analyze(sims, stats_script);
+----
+
+Note that the workflow is based on data flow dependencies: each simulation 
+depends on the single seed value, calculated in this statement:
+-----
+seedfile = genseed(1, simulate_script);
+-----
+The bias file is computed and then consumed in these two dependent statements:
+-----
+  biasfile = genbias(1000, 20, simulate_script);
+  (simout,simlog) = simulation(steps, range, biasfile, 1000000, values, simulate_script, seedfile);
+-----
+
+To run:
+----
+$ cd ../part07
+$ swift p7.swift
+----
+
+The default parameters result in the following execution log:
+
+-----
+$ swift p7.swift 
+Swift 0.95 Branch SVN swift-r7903 cog-r3908
+RunID: run001
+Progress: Thu, 05 Jun 2014 06:01:36-0500
+
+*** Script parameters: nsim=10 range=100 num values=10
+
+Progress: Thu, 05 Jun 2014 06:01:37-0500  Submitted:8  Active:2  Finished successfully:11
+Progress: Thu, 05 Jun 2014 06:01:38-0500  Submitted:6  Active:2  Finished successfully:13
+Progress: Thu, 05 Jun 2014 06:01:39-0500  Submitted:4  Active:2  Finished successfully:15
+Progress: Thu, 05 Jun 2014 06:01:40-0500  Submitted:2  Active:2  Finished successfully:17
+Progress: Thu, 05 Jun 2014 06:01:41-0500  Active:2  Finished successfully:19
+Final status:Thu, 05 Jun 2014 06:01:41-0500  Finished successfully:22
+-----
+
+which produces the following output:
+-----
+$ ls -lrt output
+total 264
+-rw-r--r-- 1 p01532 61532     9 Aug 27 19:17 seed.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_9.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_8.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_7.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_6.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_5.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_4.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_3.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_2.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_1.dat
+-rw-r--r-- 1 p01532 61532   180 Aug 27 19:17 bias_0.dat
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:17 sim_9.out
+-rw-r--r-- 1 p01532 61532 14897 Aug 27 19:17 sim_9.log
+-rw-r--r-- 1 p01532 61532 14897 Aug 27 19:17 sim_8.log
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:17 sim_7.out
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:17 sim_6.out
+-rw-r--r-- 1 p01532 61532 14897 Aug 27 19:17 sim_6.log
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:17 sim_5.out
+-rw-r--r-- 1 p01532 61532 14897 Aug 27 19:17 sim_5.log
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:17 sim_4.out
+-rw-r--r-- 1 p01532 61532 14897 Aug 27 19:17 sim_4.log
+-rw-r--r-- 1 p01532 61532 14897 Aug 27 19:17 sim_1.log
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:18 sim_8.out
+-rw-r--r-- 1 p01532 61532 14897 Aug 27 19:18 sim_7.log
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:18 sim_3.out
+-rw-r--r-- 1 p01532 61532 14897 Aug 27 19:18 sim_3.log
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:18 sim_2.out
+-rw-r--r-- 1 p01532 61532 14898 Aug 27 19:18 sim_2.log
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:18 sim_1.out
+-rw-r--r-- 1 p01532 61532    90 Aug 27 19:18 sim_0.out
+-rw-r--r-- 1 p01532 61532 14897 Aug 27 19:18 sim_0.log
+-rw-r--r-- 1 p01532 61532     9 Aug 27 19:18 average.out
+-rw-r--r-- 1 p01532 61532 14675 Aug 27 19:18 average.log
+-----
+
+Each `sim_N.out` file is the sum of its bias file plus newly "simulated" random output scaled by 1,000,000:
+
+-----
+$ cat output/bias_0.dat
+     302
+     489
+      81
+     582
+     664
+     290
+     839
+     258
+     506
+     310
+     293
+     508
+      88
+     261
+     453
+     187
+      26
+     198
+     402
+     555
+
+$ cat output/sim_0.out
+64000302
+38000489
+32000081
+12000582
+46000664
+36000290
+35000839
+22000258
+49000506
+75000310
+-----
+
+We produce 20 values in each bias file. Simulations of less than that
+number of values ignore the unneeded number, while simualtions of more
+than 20 will use the last bias number for all remaining values past
+20.  As an exercise, adjust the code to produce the same number of
+bias values as is needed for each simulation.  As a further exercise,
+modify the script to generate a unique seed value for each simulation,
+which is a common practice in ensemble computations.
+
+////
+Below is commented out for further use.
+
+Performing larger Swift runs and Plotting run activities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To test with larger runs, you can change the command line arguments. The 
+example below will run 1000 simulations with each simulation taking 5 seconds:
+-----
+$ swift p7.swift -steps=5 -nsim=1000
+-----
+
+The tutorial `bin` directory in your `$PATH` provides a script
+`plot.sh` to plot the progress of a Swift script.  It generates two
+image files: `activeplot.png`, which shows the number of active jobs
+over time, and `cumulativeplot.png`, which shows the total number of
+app calls completed as the Swift script progresses.
+
+After each Swift run, a new run directory is created called `runNNN`.
+Each run directory will have a log file with a similar name called
+`runNNN.log`. Once you have identified the log file name, run the 
+command `plot.sh <logfile>` to generate the plots for that
+specific run. For example:
+
+-----
+$ ls
+output  p3.swift  run000  swift.properties
+
+$ cd run000/
+
+$ ls
+apps  cf  p3-20131202-2004-0kh4ha6e.d  run000.log  sites.xml
+
+$ plot.sh run000.log 
+-----
+
+This can thus yield plots like the following:
+
+image::activeplot.png[width=700,align=center]
+image::cumulativeplot.png[width=700,align=center]
+
+Above is commented out for further use.
+////
