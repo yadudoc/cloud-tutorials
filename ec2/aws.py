@@ -167,8 +167,8 @@ def start_worker(driver, configs, worker_names):
     sizes      = driver.list_sizes()
     size       = [ s for s in sizes if s.id == configs['WORKER_MACHINE_TYPE'] ]
     if not size:
-        logging.info("ec2workerimage not legal/valid : %s", configs['ec2workertype'])
-        sys.stderr.write("ec2workerimage not legal/valid \n")
+        logging.info("ec2workerimage not legal/valid : %s", configs['WORKER_MACHINE_TYPE'])
+        sys.stderr.write("WORKER_MACHINE_TYPE not legal/valid \n")
         exit(-1);
 
     image      = NodeImage(id=configs['WORKER_IMAGE'], name=None, driver=driver)
