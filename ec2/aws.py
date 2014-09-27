@@ -123,11 +123,14 @@ def start_headnode(driver, configs):
 
 
 def start_worker(driver, configs, worker_names):
-    nodes      = driver.list_nodes()
-    headnode   = False
-    disk_info  = False
-    volume     = False
-    disk_info  = ""
+    nodes       = driver.list_nodes()
+    headnode    = False
+    disk_info   = False
+    volume      = False
+    disk_info   = ""
+    concurrency = "-c 1" # Default concurrency for workers
+    init_string = ""
+
     for node in nodes:
         if node.name == "headnode" and node.state == NodeState.RUNNING:
             headnode = node
@@ -139,6 +142,19 @@ def start_worker(driver, configs, worker_names):
     userdata   = configurator.getstring("worker")
     userdata   = userdata.replace("SET_HEADNODE_IP", headnode.public_ips[0])
 
+    # Setting worker concurrency level
+    if 'WORKER_CONCURRENCY' in configs:
+        concurrency = "-c " + str(configs['WORKER_CONCURRENCY'])
+    userdata    = userdata.replace("SET_CONCURRENCY", concurrency)
+
+    # Inserting WORKER_INIT_SCRIPT
+    if 'WORKER_INIT_SCRIPT' in configs :
+        if not os.path.isfile(configs['WORKER_INIT_SCRIPT']):
+            print "Unable to read WORKER_INIT_SCRIPT"
+            exit(-1);
+        init_string = open(configs['WORKER_INIT_SCRIPT'], 'r').read()
+    userdata    = userdata.replace("#WORKER_INIT_SCRIPT", init_string)
+
     if 'WORKER_DISK' in configs:
         disk_info  = configs['WORKER_DISK'].split(" ")
         location   = driver.list_locations()[0];
@@ -149,17 +165,23 @@ def start_worker(driver, configs, worker_names):
     logging.info("Worker userdata : %s", userdata)
     list_nodes = []
     sizes      = driver.list_sizes()
-    size       = [ s for s in sizes if s.id == configs['WORKER_MACHINE_TYPE'] ][0]
+    size       = [ s for s in sizes if s.id == configs['WORKER_MACHINE_TYPE'] ]
+    if not size:
+        logging.info("ec2workerimage not legal/valid : %s", configs['ec2workertype'])
+        sys.stderr.write("ec2workerimage not legal/valid \n")
+        exit(-1);
+
     image      = NodeImage(id=configs['WORKER_IMAGE'], name=None, driver=driver)
     print size
+
     for worker_name in worker_names:
         node       = driver.create_node(name=worker_name,
                                         image=image,
-                                        size=size,
+                                        size=size[0],
                                         ex_keyname=configs['AWS_KEYPAIR_NAME'],
                                         ex_securitygroup=configs['SECURITY_GROUP'],
+                                        #block_device_mapping=mapping,
                                         ex_userdata=userdata )
-
         if volume:
             driver.attach_volume(node, volume, device=disk_info[1] )
 
@@ -211,7 +233,6 @@ def help():
 # Main driver section
 configs, driver = init()
 args = sys.argv[1:]
-#print "All args : ",str(args)
 
 if len(args) < 1:
     help()

@@ -141,13 +141,12 @@ mkdir /scratch;
 mdadm --create --verbose /dev/md0 --level=stripe --raid-devices=2 /dev/xvdb /dev/xvdc
 mkfs.ext4 /dev/md0; mount -t ext4 /dev/md0 /scratch; chmod 777 /scratch
 mkdir /s3; chmod 777 /s3;
+s3fs -o allow_other,gid=2300 swift-s3-test /s3 -ouse_cache=/scratch,parallel_count=25
 PTIMEOUT=4
 #Disk_setup
 export JAVA=/usr/local/bin/jdk1.7.0_51/bin
 export SWIFT=/usr/local/bin/swift-0.95-RC6/bin
 export PATH=$JAVA:$SWIFT:$PATH
-#yum -y install python-pip
-#pip install awscli
 export ENABLE_WORKER_LOGGING
 export WORKER_LOGGING_LEVEL=DEBUG
 worker_loop ()
@@ -166,6 +165,8 @@ worker_loop &
 WORKER_USERDATA_TRUNK='''#!/bin/bash
 #Replace_me
 HEADNODE=SET_HEADNODE_IP
+CONCURRENCY="SET_CONCURRENCY"
+#WORKER_INIT_SCRIPT
 WORKERPORT="50005"
 #Ping timeout
 apt-get update
@@ -199,9 +200,8 @@ worker_loop ()
 {
     while :
     do
-        echo "Pinging HEADNODE on $HEADNODE"
-        #runuser -l ec2-user -c "worker.pl http://$HEADNODE:$WORKERPORT 0099 ~/workerlog -w 3600"
-        worker.pl http://$HEADNODE:$WORKERPORT 0099 /var/log -w 3600
+        echo "Connecting to HEADNODE on $HEADNODE"
+        worker.pl -w 3600 $CONCURRENCY http://$HEADNODE:$WORKERPORT 0099 /var/log
         sleep 5
     done
 }

@@ -25,4 +25,8 @@ HEADNODE_MACHINE_TYPE=c3.xlarge
 # Clean Ubuntu image
 WORKER_IMAGE=ami-e7b8c0d7
 # Worker instance type
-WORKER_MACHINE_TYPE=c3.xlarge
+#WORKER_MACHINE_TYPE=t2.medium
+WORKER_MACHINE_TYPE=t1.small
+
+# The following allows a script to executed on the worker at boot time
+#WORKER_INIT_SCRIPT=foo.sh
