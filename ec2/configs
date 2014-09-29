@@ -1,42 +1,33 @@
 # Must set following config correctly
-AWS_CREDENTIALS_FILE=/home/yadu/src/swift-on-cloud/aws/ravi-credentials.csv
+AWS_CREDENTIALS_FILE=/path/to/credentials.csv
 
-# Set the number of worker nodes required
+# Set the number of worker nodes required (limited by your account quotas)
 AWS_WORKER_COUNT=2
 
 # Update the following only if you want to use a specific keypair
 # A key will be generated in path if none are found
-AWS_KEYPAIR_NAME=swift-test-pair
-AWS_KEYPAIR_FILE=~/.ssh/swift-test-pair.pem
+AWS_KEYPAIR_NAME=mykeypair
+AWS_KEYPAIR_FILE=/home/yadu/Downloads/mykeypair.pem
 
-#ec2-user is the default user on Amazon linux
-#AWS_USERNAME=ec2-user
 #ubuntu is the default user on Ubuntu nodes
 AWS_USERNAME=ubuntu
 
-# Do not change following parameter
+# Ubuntu Server 14.04 LTS (PV), SSD Volume Type - ami-c9d497f9 (64-bit)
+HEADNODE_IMAGE=ami-c9d497f9
+# Headnode instance type, refer to Amazon instance types page for reference
+# Legal machine types : t1.micro | m1.small | m1.medium | m1.large
+HEADNODE_MACHINE_TYPE=t1.micro
+
+# Ubuntu Server 14.04 LTS (PV), SSD Volume Type - ami-c9d497f9 (64-bit)
+WORKER_IMAGE=ami-c9d497f9
+# Headnode instance type, refer to Amazon instance types page for reference
+# Legal machine types : t1.micro | m1.small | m1.medium | m1.large
+WORKER_MACHINE_TYPE=t1.micro
+
+# The following allows a script to executed on the worker at boot time
+# WORKER_INIT_SCRIPT=foo.sh
+# Do not change following parameters
 AWS_REGION=us-west-2
 SECURITY_GROUP=swift_security_group1
 
-# Ubuntu image with HVM support (for larger instance types)
-HEADNODE_IMAGE=ami-e7b8c0d7
 
-
-# Headnode instance type, refer to Amazon instance types page for reference
-HEADNODE_MACHINE_TYPE=c3.xlarge
-
-# Ubuntu image with HVM support for large instances
-WORKER_IMAGE=ami-e7b8c0d7
-# Ubuntu image for smaller instances with <2 vCPUs
-# Ubuntu Server 14.04 LTS (PV) (64-bit)
-WORKER_IMAGE=ami-8bb8c0bb
-
-# Worker instance type
-# Use either m3.medium or t2.micro
-#WORKER_MACHINE_TYPE=m3.medium
-# HVM images not supported on  Micro instance
-#WORKER_MACHINE_TYPE=t1.micro
-WORKER_MACHINE_TYPE=m1.small
-
-# The following allows a script to executed on the worker at boot time
-#WORKER_INIT_SCRIPT=foo.sh

@@ -100,12 +100,19 @@ def start_headnode(driver, configs):
             print "INFO: Headnode is RUNNING"
             return 0
 
+
+
     sizes      = driver.list_sizes()
-    size       = [ s for s in sizes if s.id == configs['HEADNODE_MACHINE_TYPE'] ][0]
+    size       = [ s for s in sizes if s.id == configs['HEADNODE_MACHINE_TYPE'] ]
+    if not size:
+        logging.info("ec2headnodeimage not legal/valid : %s", configs['HEADNODE_MACHINE_TYPE'])
+        sys.stderr.write("HEADNODE_MACHINE_TYPE not legal/valid \n")
+        exit(-1);
+
     image      = NodeImage(id=configs['HEADNODE_IMAGE'], name=None, driver=driver)
     node       = driver.create_node(name='headnode',
                                     image=image,
-                                    size=size,
+                                    size=size[0],
                                     ex_keyname=configs['AWS_KEYPAIR_NAME'],
                                     ex_securitygroup=configs['SECURITY_GROUP'],
                                     ex_userdata=userdata )
