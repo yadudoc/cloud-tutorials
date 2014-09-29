@@ -94,6 +94,8 @@ export PATH=$JAVA:$SWIFT:$PATH
 apt-get update; apt-get install -y build-essential git libfuse-dev libcurl4-openssl-dev libxml2-dev mime-support libtool mdadm
 apt-get install -y automake
 cd /home/ubuntu;
+git clone https://github.com/yadudoc/cloud-tutorials.git
+chmod 777 cloud-tutorials
 git clone https://github.com/s3fs-fuse/s3fs-fuse
 cd s3fs-fuse/
 ./autogen.sh
