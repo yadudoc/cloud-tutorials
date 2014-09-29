@@ -2,7 +2,6 @@
 
 import os
 import pprint
-import boto.ec2
 
 def _read_conf(config_file):
     cfile = open(config_file, 'r').read()
