@@ -1,13 +1,14 @@
-# Must set following config correctly
+# Set following config with an absolute path to the credentials file
 AWS_CREDENTIALS_FILE=/path/to/credentials.csv
 
 # Set the number of worker nodes required (limited by your account quotas)
 AWS_WORKER_COUNT=2
 
-# Update the following only if you want to use a specific keypair
+# Set the name for the keypair used to ssh to instances
 # A key will be generated in path if none are found
 AWS_KEYPAIR_NAME=mykeypair
-AWS_KEYPAIR_FILE=/home/yadu/Downloads/mykeypair.pem
+# Set following config with an absolute path to where you want the keypair file
+AWS_KEYPAIR_FILE=/path/to/mykeypair.pem
 
 #ubuntu is the default user on Ubuntu nodes
 AWS_USERNAME=ubuntu
