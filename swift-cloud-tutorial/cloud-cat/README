@@ -5,14 +5,13 @@ swift cat.swift
 You can select the site where you run the program by editing the swift.conf file:
 
 # To run on just your local machine
-site=local
+sites=local
 
 # To run on a static cloud setup, for the tutorial
-site=cloud-static
+sites=cloud-static
 
 # To run with dynamic coasters
-site=aws
-
+sites=aws
 
 
 Download and setup the sample dataset from gutenberg.org :
