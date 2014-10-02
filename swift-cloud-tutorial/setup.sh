@@ -14,7 +14,7 @@ else
   echo Assuming $TUTDIR/bin:$TUTDIR/app: is already at front of PATH
 fi
 
-if [ -f /usr/local/bin/jdk1.7.0_51/bin ] && [ -f /usr/local/bin/swift-trunk/bin ]
+if [ -d /usr/local/bin/jdk1.7.0_51/bin ] && [ -d /usr/local/bin/swift-trunk/bin ]
 then
     export JAVA=/usr/local/bin/jdk1.7.0_51/bin
     export SWIFT=/usr/local/bin/swift-trunk/bin
