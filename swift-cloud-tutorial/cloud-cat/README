@@ -1,0 +1,25 @@
+
+To run the cat.swift program, do:
+swift cat.swift
+
+You can select the site where you run the program by editing the swift.conf file:
+
+# To run on just your local machine
+site=local
+
+# To run on a static cloud setup, for the tutorial
+site=cloud-static
+
+# To run with dynamic coasters
+site=aws
+
+
+
+Download and setup the sample dataset from gutenberg.org :
+wget http://www.gutenberg.org/files/4300/4300.zip
+unzip 4300.zip
+mkdir -p input
+mv 4300.txt input
+rm 4300.zip
+
+
