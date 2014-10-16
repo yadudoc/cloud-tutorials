@@ -24,11 +24,9 @@ portable fashion: The same script runs on multicore computers,
 clusters, clouds, grids, and supercomputers. 
 
 This tutorial contains *two sections*. In the first section you will be able to try a few
-Swift examples on your local machine, to get a sense of the language. Then in the 
-second section you will run similar workflows on remote resources such as Midway, 
-distributed OSG Connect resources, Cray, etc., and learn how to instruct Swift to run 
-jobs in different places. You will also see how more 
-complex workflows can be expressed with Swift scripts.
+Swift examples on your local machine (the cloud headnode), to get a sense of the language. Then in the
+second section you will run similar workflows on cloud worker nodes as well as remote resources such as Midway, OSGConnect resources, Cray, etc. 
+You will also see how more complex workflows can be expressed with Swift scripts.
 
 ////
 both locally on those machines and 
@@ -49,37 +47,43 @@ NOTE: For the cloud, Java and Swift has already been installed on the cloud head
 Tutorial scripts installation
 -----------------------------
 
+
 Run the following commands to extract these tutorial scripts.
 
+[source,bash]
 -----
-
-cd swift-on-cloud/swift-cloud-tutorial
------
-////
 $ cd $HOME
 $ git clone https://github.com/yadudoc/cloud-tutorials.git
 $ cd cloud-tutorials/swift-cloud-tutorial
-////
+----
+
+NOTE: Skip the above section on the cloud, as these directories are already present in your home
+directory
+
+cd cloud-tutorial/swift-cloud-tutorial
 
 Run the tutorial setup script
+[source,bash]
 -----
 $ source setup.sh   # You must run this with "source" !
 -----
-Doing this will add the sample applications `simulate` and `stats` (explained in the next part) and 
+Doing this will add the sample applications `simulate` and `stats` (explained in the next part) and
 some other functionalities to your local `$PATH` for you to run the tutorial.
 
-In the tutorial directory you will find six `partNN` folders. Each part contains one Swift example that serves to 
-demonstrate different functions for the workflow tutorial. `part01` to `part03` contain 
-Swift scripts for running jobs locally. `part04` to `part06` contain scripts for running jobs on remote 
-resources that you have access to, with corresponding configurations. Further explanations on these will 
+In the tutorial directory you will find seven `partNN` folders. Each part contains one Swift example that serves to
+demonstrate different functions for the workflow tutorial. `part01` to `part03` contain
+Swift scripts for running jobs locally. `part04` to `part06` contain scripts for running jobs on remote
+resources that you have access to, with corresponding configurations. Further explanations on these will
 be in Section Two of this tutorial.
 
 
 .Verify your environment
 
 To verify that Swift has successfully loaded, run:
+[source, bash]
 -----
-$ swift -version # verify that you have Swift trunk
+# verify that you have Swift trunk
+$ swift -version
 -----
 
 [NOTE]
