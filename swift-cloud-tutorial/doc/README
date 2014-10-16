@@ -316,12 +316,12 @@ $ cleanup
 
 [NOTE]
 ===== 
-You will find a Swift configuration file `swift.properties` 
-in each `partNN` directory in the tutorial folder. It defines properties 
-that control the parallelism involved in the swift execution. It also defines 
-properties such as the work directory and the scheduler to use. The specifics will 
-be explained in more detail in the second section of the tutorial, and can be 
-ignored for now. 
+You will find a Swift configuration file `swift.conf` file
+in each `partNN` directory in the tutorial folder. It defines properties
+that control the parallelism involved in the swift execution. It also defines
+properties such as the work directory and the scheduler to use. The specifics will
+be explained in more detail in the second section of the tutorial, and can be
+ignored for now.
 =====
 
 Example 2: Running an ensemble of many apps in parallel with a "foreach" loop
@@ -495,21 +495,21 @@ similar workflows on remote machines.
 *Tutorial Section Two*
 ----------------------
 
-When you have access to other resources that you wish to run jobs on, 
-you can simply state `-site=XX` (where `XX` is the name of the resource) on the command line 
-following the usual command given to run Swift. With the right configuration 
-specifications, Swift will automatically connect you to the target machine and 
-start the jobs there. 
+When you have access to other resources that you wish to run jobs on,
+you can simply state `-site=XX` (where `XX` is the name of the resource) on the command line
+following the usual command given to run Swift. With the right configuration
+specifications, Swift will automatically connect you to the target machine and
+start the jobs there.
 
-For example, if you are already logged in on a certain machine and you wish to run 
+For example, if you are already logged in on a certain machine and you wish to run
 jobs locally, you can do:
 -----
 $ swift p1.swift -site=local
 -----
-Then Swift will complete the jobs for you on the login node.
+Then Swift will complete the jobs for you on the login/head-node.
 
-You can use `part01-03` to run the same workflows as in Section One on the local 
-node as an exercise. You will learn more examples for running on remote sites using 
+You can use `part01-03` to run the same workflows as in Section One on the local
+node as an exercise. You will learn more examples for running on remote sites using
 `part04-06` introduced in the following section.
 
 [NOTE]
@@ -519,8 +519,8 @@ instructions. However, you do not need to do the same for the remote sites as Sw
 automatically carried over.
 =====
 
-Example 4: Running a simple app on remote node
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Example 4: Running a simple app on worker nodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In `p4.swift`, there is a simple `app` which takes a file containing random numbers and `sort` them before returning a sorted output. In the `part04` 
 folder  we have a file, `unsorted.txt`, which contains 100 random integers ranging from 0 to 99 and we wish to run the job on a remote node.
@@ -547,7 +547,7 @@ sorted file  `sorted.txt` back to the local machine.
 For example, to run the job remotely on Midway and to view the output:
 -----
 $ cd ../part04
-$ swift p4.swift -site=midway-remote
+$ swift p4.swift -site=
 Swift 0.95 RC6 swift-r7900 cog-r3908
 RunID: run001
 Progress: Mon, 14 Jul 2014 16:29:42-0500
@@ -646,10 +646,10 @@ ANT_HOME_modshare=/software/ant-1.8.4-all:3
 -----
 ////
 
-In order to run `p5.swift` on compute nodes instead of on the headnode, you can again specify it on the command 
-line. For example, if you are on Midway, instead of running locally, you can run:
+In order to run `p5.swift` on compute nodes instead of on the headnode, you can again specify it on the command
+line. For example, on the cloud-headnode :
 -----
-$ swift p5.swift -site=midway
+$ swift p5.swift -site=cloud-static
 -----
 
 The site names can be defined in the Swift's `swift.properties` configuration file. The 
@@ -659,44 +659,33 @@ Consider, for example, that Midway has several Slurm partitions. The sandyb part
 cores, and the westmere partition has 12 cores. Depending on the application and which partitions 
 are busy, you may want to modify where you run in the `jobQueue` specification:
 -----
-site.midway {
-   jobManager=slurm
-   jobQueue=westmere
-   tasksPerWorker=4
-   initialScore=10000
-   filesystem=local
-   jobproject=pi-wilde    # Put your own project ID here
-   workdir=/scratch/midway/$USER/work
+site.cloud-static {
+    execution {
+        type:"coaster-persistent"
+        URL: "http://127.0.0.1:50010"
+        jobManager: "local:local"
+        options {
+            maxJobs: 10
+            tasksPerNode: 4
+        }
+    }
+
+    initialParallelTasks: 20
+    maxParallelTasks: 20
+    filesystem.type: local
+    workDirectory: /tmp/swiftwork
+    staging: local
+    app.ALL {executable: "*"}
+
 }
 -----
+
 By setting the `tasksPerWorker` to the desired number of parallel application 
 invocations it is possible to take advantage of multiple cores in the processor. 
 The `taskThrottle` variable is used to limit number of tasks sent to workers 
 for execution. Both `tasksPerWorker` and `taskThrottle` are set to 2 in the tutorial 
 and could be set to the number of cores available on your machine.
 You should also make sure to change `workdir` to your own directory on the site.
-
-You can also execute jobs remotely from your own machine by setting `jobManager` to the 
-full path of the scheduler.
-
-For example, if you run:
------
-$ swift p5.swift -site=midway-remote
------
-Swift will `ssh` to the target site and start the jobs there.
-
-`swift.properties` will therefore look like this:
------
-site.midway-remote {
-   jobManager=midway.rcc.uchicago.edu:slurm
-   jobQueue=westmere
-   tasksPerWorker=12
-   initialScore=10000
-   filesystem=local
-   jobproject=pi-wilde    # Put your own project ID here
-   workdir=/scratch/midway/$USER/work
-}
------
 
 Note that if you have a different `$USER` name on your working site from your 
 local machine, you should change the  `workdir` accordingly to the correct one.
