@@ -2,7 +2,7 @@ Swift Tutorial
 ==============
 
 This tutorial is viewable at:
-http://swift-lang.org/tutorials/localhost/tutorial.html [red]#<fix>#
+https://github.com/yadudoc/cloud-tutorials/tree/master/swift-cloud-tutorial
 
 
 Introduction: Why Parallel Scripting?
@@ -38,26 +38,27 @@ on your own machine by connecting to them remotely.
 Swift installation
 ------------------
 -----
-$ wget http://swiftlang.org/packages/swift-0.95-RC6.tar.gz  # Download the file
-$ tar xfz swift-0.95-RC6.tar.gz   # Extract the file
-$ export PATH=/path/to/swift-0.95-RC6/bin:$PATH   # Add to PATH
+$ wget http://swift-lang.org/packages/swift-trunk.tar.gz
+$ tar xfz swift-trunk.tar.gz   # Extract the file
+$ export PATH=/path/to/swift-trunk/bin:$PATH   # Add to PATH
 -----
+
+NOTE: For the cloud, Java and Swift has already been installed on the cloud headnode.
+
 
 Tutorial scripts installation
 -----------------------------
-Run the following commands to extract these tutorial scripts. [red]#<fix?>#
+
+Run the following commands to extract these tutorial scripts.
 
 -----
-wget https://github.com/yadudoc/swift-on-cloud/archive/master.zip
-unzip master.zip
-mv swift-on-cloud-master swift-on-cloud
+
 cd swift-on-cloud/swift-cloud-tutorial
 -----
 ////
 $ cd $HOME
-$ wget http://swiftlang.org/tutorials/midway/swift-midway-tutorial.tar.gz
-$ tar xvfz swift-midway-tutorial.tar.gz
-$ cd swift-midway-tutorial
+$ git clone https://github.com/yadudoc/cloud-tutorials.git
+$ cd cloud-tutorials/swift-cloud-tutorial
 ////
 
 Run the tutorial setup script
@@ -73,28 +74,17 @@ Swift scripts for running jobs locally. `part04` to `part06` contain scripts for
 resources that you have access to, with corresponding configurations. Further explanations on these will 
 be in Section Two of this tutorial.
 
-.To check out the tutorial scripts from SVN
-
-If you later want to get the most recent version of this tutorial from
-the Swift Subversion repository, do:
-
------
-$ svn co https://svn.ci.uchicago.edu/svn/vdl2/SwiftTutorials/swift-localhost-tutorial  <fix>
------
-
-This will create a directory called "swift-localhost-tutorial" which contains all of the files 
-used in this tutorial. [red]#<fix name>#
 
 .Verify your environment
 
 To verify that Swift has successfully loaded, run:
 -----
-$ swift -version # verify that you have Swift 0.95 RC6
+$ swift -version # verify that you have Swift trunk
 -----
 
 [NOTE]
 =====
-If you re-login or open new ssh sessions, you must re-run `source setup.sh` in each 
+If you re-login or open new ssh sessions, you must re-run `source setup.sh` in each
 ssh shell/window.
 =====
 
