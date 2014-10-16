@@ -156,7 +156,7 @@ worker_loop ()
     do
         echo "Pinging HEADNODE on $HEADNODE"
         #runuser -l ec2-user -c "worker.pl http://$HEADNODE:$WORKERPORT 0099 ~/workerlog -w 3600"
-        worker.pl http://$HEADNODE:$WORKERPORT 0099 /var/log -w 3600
+        worker.pl http://$HEADNODE:$WORKERPORT $HOSTNAME /var/log -w 3600
         sleep 5
     done
 }
@@ -202,7 +202,7 @@ worker_loop ()
     while :
     do
         echo "Connecting to HEADNODE on $HEADNODE"
-        worker.pl -w 3600 $CONCURRENCY http://$HEADNODE:$WORKERPORT 0099 /var/log
+        worker.pl -w 3600 $CONCURRENCY http://$HEADNODE:$WORKERPORT $HOSTNAME /var/log
         sleep 5
     done
 }
