@@ -63,10 +63,13 @@ directory
 cd cloud-tutorial/swift-cloud-tutorial
 
 Run the tutorial setup script
+
 [source,bash]
 -----
-$ source setup.sh   # You must run this with "source" !
+# You must run this with "source" !
+$ source setup.sh
 -----
+
 Doing this will add the sample applications `simulate` and `stats` (explained in the next part) and
 some other functionalities to your local `$PATH` for you to run the tutorial.
 
