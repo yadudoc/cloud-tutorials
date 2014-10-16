@@ -55,7 +55,7 @@ Run the following commands to extract these tutorial scripts.
 $ cd $HOME
 $ git clone https://github.com/yadudoc/cloud-tutorials.git
 $ cd cloud-tutorials/swift-cloud-tutorial
-----
+-----
 
 NOTE: Skip the above section on the cloud, as these directories are already present in your home
 directory
