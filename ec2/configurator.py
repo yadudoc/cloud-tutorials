@@ -167,7 +167,6 @@ WORKER_USERDATA_TRUNK='''#!/bin/bash
 #Replace_me
 HEADNODE=SET_HEADNODE_IP
 CONCURRENCY="SET_CONCURRENCY"
-#WORKER_INIT_SCRIPT
 WORKERPORT="50005"
 #Ping timeout
 apt-get update
@@ -192,6 +191,7 @@ mkfs.ext4 /dev/md0; mount -t ext4 /dev/md0 /scratch; chmod 777 /scratch
 mkdir /s3; chmod 777 /s3;
 PTIMEOUT=4
 #Disk_setup
+#WORKER_INIT_SCRIPT
 export JAVA=/usr/local/bin/jdk1.7.0_51/bin
 export SWIFT=/usr/local/bin/swift-trunk/bin
 export PATH=$JAVA:$SWIFT:$PATH
